@@ -29,7 +29,7 @@ namespace _4Has4Letters // Even in Georgian!
             [Option('b', "blocks", Required = false, HelpText = "The maximum number of CUDA blocks. 100,000 by default")]
             public uint blocks { get; set; } = 100_000;
 
-            [Option('m', "memory", Required = false, HelpText = "The maximum System Memory (GB) should OpenCL use")]
+            [Option('m', "memory", Required = false, HelpText = "The maximum System Memory (GB) should OpenCL use (8 by default)")]
             public int memory { get; set; } = 8;
 
             [Option('s', "start", Required = false, HelpText = "The start of the range of numbers to test. 0 by default")]
