@@ -5,6 +5,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>_4Has4Letters</RootNamespace>
     <ApplicationIcon>MattParker.ico</ApplicationIcon>
+    <Authors>Guiorgy</Authors>
+    <Copyright>Guiorgy</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Guiorgy/4Has4Letters</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
