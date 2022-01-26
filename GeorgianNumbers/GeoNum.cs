@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -8,11 +9,12 @@ using System.Text;
 
 namespace GeorgianNumbers
 {
-    public class GeoNum
+    public sealed class GeoNum
     {
-        private static GeoNum instance;
+        private static GeoNum? instance;
         private static readonly object thislock = new object();
 
+        [SuppressMessage("Concurrency", "PH_B010:Incomplete Monitor Synchronization on Single Field", Justification = "Should be fine?")]
         public static GeoNum Instance
         {
             get
@@ -24,7 +26,7 @@ namespace GeorgianNumbers
             }
         }
 
-        private string ReadResources(string resourceName)
+        private string? ReadResources(string resourceName)
         {
             try
             {
@@ -42,20 +44,13 @@ namespace GeorgianNumbers
 
         private string[] ReadResourceLines(string resourceName)
         {
-            try
-            {
-                return ReadResources(resourceName).Split(
+            return ReadResources(resourceName)?.Split(
                     new[] { Environment.NewLine },
                     StringSplitOptions.None
-                );
-            }
-            catch
-            {
-                return new string[0];
-            }
+                ) ?? new string[0];
         }
 
-        private readonly string[] under = new string[1000];
+        private readonly string[] under;
         private readonly Tuple<string, string>[] thousands = new Tuple<string, string>[]
         {
             Tuple.Create("ათასი", "ათას"),
@@ -71,8 +66,10 @@ namespace GeorgianNumbers
             Tuple.Create("დეცილიონი", "დეცილიონ"),
         };
 
+#pragma warning disable S3887 // Mutable, non-private fields should not be "readonly"
         public readonly int[] underCount;
         public readonly int[] thousandsCount;
+#pragma warning restore S3887 // Mutable, non-private fields should not be "readonly"
 
         private GeoNum()
         {
@@ -83,6 +80,7 @@ namespace GeorgianNumbers
             }
             catch
             {
+                under = new string[1000];
                 #region under 20
                 under[0] = "ნული";
                 under[1] = "ერთი";
@@ -158,7 +156,7 @@ namespace GeorgianNumbers
                     builder.Append(under[separated[l]])
                         .Append(' ');
                 if (nonZero == separated.Length - 1)
-                    return builder.Append(thousands[--l].Item1).ToString();
+                    return builder.Append(thousands[l].Item1).ToString();
                 else
                     builder.Append(thousands[--l].Item2);
                 while (l > nonZero)
@@ -204,7 +202,7 @@ namespace GeorgianNumbers
                 if (!dropOnes || separated[l] != 1)
                     count += underCount[separated[l]] + 1;
                 if (nonZero == separated.Length - 1)
-                    return count + thousandsCount[--l];
+                    return count + thousandsCount[l];
                 else
                     count += thousandsCount[--l] - 1;
                 while (l > nonZero)
@@ -244,6 +242,18 @@ namespace GeorgianNumbers
             return separated.ToArray();
         }
 
+        private int[] SeparateNumber(BigInteger number)
+        {
+            List<int> separated = new List<int>();
+            while (number >= 1000)
+            {
+                separated.Add((int)(number % 1000));
+                number /= 1000;
+            }
+            separated.Add((int)(number % 1000));
+            return separated.ToArray();
+        }
+
         public string BigIntegerToGeorgian(BigInteger number, string separator = ", ", bool dropOnes = true)
         {
             if (number < 1000)
@@ -261,7 +271,7 @@ namespace GeorgianNumbers
                     builder.Append(under[separated[l]])
                         .Append(' ');
                 if (nonZero == separated.Length - 1)
-                    return builder.Append(thousands[--l].Item1).ToString();
+                    return builder.Append(thousands[l].Item1).ToString();
                 else
                     builder.Append(thousands[--l].Item2);
                 while (l > nonZero)
@@ -289,18 +299,6 @@ namespace GeorgianNumbers
                 }
                 return builder.ToString();
             }
-        }
-
-        private int[] SeparateNumber(BigInteger number)
-        {
-            List<int> separated = new List<int>();
-            while (number >= 1000)
-            {
-                separated.Add((int)(number % 1000));
-                number /= 1000;
-            }
-            separated.Add((int)(number % 1000));
-            return separated.ToArray();
         }
     }
 }

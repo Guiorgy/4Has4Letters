@@ -4,7 +4,7 @@ namespace CL
 {
     public static class Extensions
     {
-        public static void Dispose(this ComputeEventList eventList)
+        public static void DisposeAll(this ComputeEventList eventList)
         {
             foreach (ComputeEventBase eventBase in eventList)
                 eventBase.Dispose();

@@ -2,6 +2,7 @@
 using GeorgianNumbers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 #if DEBUG
 using System.Linq;
@@ -13,8 +14,9 @@ using static CL.CL;
 
 namespace _4Has4Letters // Even in Georgian!
 {
-    class Program
+    static class Program
     {
+        [SuppressMessage("Style", "IDE1006:Naming Styles")]
         public class Options
         {
             [Option('t', "threads", Required = false, HelpText = "Number of CPU threads")]
@@ -48,9 +50,9 @@ namespace _4Has4Letters // Even in Georgian!
 
         static async Task Main(string[] args)
         {
-            List<long> sequence = null;
+            List<long>? sequence = null;
 
-            Options options = null;
+            Options? options = null;
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o => options = o)
                 .WithNotParsed(errors =>
@@ -60,7 +62,6 @@ namespace _4Has4Letters // Even in Georgian!
                 foreach (var error in errors)
                     Console.WriteLine("\t{0}", error);
 #endif
-                return;
             });
             if (options == null)
             {
@@ -92,7 +93,7 @@ namespace _4Has4Letters // Even in Georgian!
                 if (options.cuda)
                 {
                     Cuda.prepare(GeoNum.Instance.underCount, GeoNum.Instance.thousandsCount, options.blocks);
-                    sec max = Cuda.findBetween((ulong)options.start, (ulong)options.end);
+                    Section max = Cuda.findBetween((ulong)options.start, (ulong)options.end);
                     Cuda.reset();
                     sequence = new List<long>();
                     long next = (long)max.start;
@@ -131,16 +132,17 @@ namespace _4Has4Letters // Even in Georgian!
             }
 
             watch.Stop();
+            if (sequence == null) return;
             if (!string.IsNullOrWhiteSpace(options.output))
             {
-                using StreamWriter writer = new StreamWriter(options.output, false, Encoding.Unicode);
-                writer.WriteLine($"First longest ({sequence.Count}) sequence over {string.Format("{0:n0}", options.start)} and under {string.Format("{0:n0}", options.end)}:");
+                await using StreamWriter writer = new StreamWriter(options.output, false, Encoding.Unicode);
+                await writer.WriteLineAsync($"First longest ({sequence.Count}) sequence over {string.Format("{0:n0}", options.start)} and under {string.Format("{0:n0}", options.end)}:");
                 foreach (long n in sequence)
                 {
                     string geo = GeoNum.Instance.LongToGeorgian(n, options.separator);
-                    writer.WriteLine($"\t{string.Format("{0:n0}", n)}: {geo} ({geo.Length})");
+                    await writer.WriteLineAsync($"\t{string.Format("{0:n0}", n)}: {geo} ({geo.Length})");
                 }
-                writer.Write($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                await writer.WriteAsync($"Execution Time: {watch.ElapsedMilliseconds} ms");
             }
             else
             {
@@ -154,47 +156,45 @@ namespace _4Has4Letters // Even in Georgian!
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
         }
 
-        //private static List<long> NaiveCheck(Options options, int thread)
-        //{
-        //    List<long> sequence = new List<long>();
-        //    for (long i = options.start + thread; i <= options.end; i += options.threads)
-        //    {
-        //        // Console.WriteLine($"thread {options.thread} starting {i}");
-        //        // Console.WriteLine($"Starting {i}");
-        //        List<long> visited = new List<long>();
-        //        long next = i;
-        //        while (!visited.Contains(next))
-        //        {
-        //            visited.Add(next);
-        //            string geo = GeoNum.Instance.LongToGeorgian(next, options.separator);
-        //            next = geo.Length; // Console.WriteLine($"\t{next}: {geo} ({next = geo.Length})");
-        //        }
-        //        if (visited.Count > sequence.Count)
-        //        {
-        //            sequence.Clear();
-        //            sequence.AddRange(visited);
-        //        }
-        //    }
-        //    return sequence;
-        //}
+        // NaiveCheck generates the string representation of the number and then counts its length.
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Keep it for comparison")]
+        [Obsolete("NaiveCheck is Deprecated. Use FastCheck instead.")]
+        private static List<long> NaiveCheck(Options options, int thread)
+        {
+            List<long> sequence = new List<long>();
+            for (long i = options.start + thread; i <= options.end; i += options.threads)
+            {
+                List<long> visited = new List<long>();
+                long next = i;
+                while (!visited.Contains(next))
+                {
+                    visited.Add(next);
+                    string geo = GeoNum.Instance.LongToGeorgian(next, options.separator);
+                    next = geo.Length;
+                }
+                if (visited.Count > sequence.Count)
+                {
+                    sequence.Clear();
+                    sequence.AddRange(visited);
+                }
+            }
+            return sequence;
+        }
 
+        // FastCheck doesn't generates the string representation of the number and directly counts its length.
         private static List<long> FastCheck(Options options, int thread)
         {
             int separatorCount = options.separator.Length;
             List<long> sequence = new List<long>();
             for (long i = options.start + thread; i <= options.end; i += options.threads)
             {
-                // Console.WriteLine($"thread {options.thread} starting {i}");
-                // Console.WriteLine($"Starting {i}");
                 List<long> visited = new List<long>();
                 long next = i;
                 // Assuming all sequences end with 4
                 while (next != 4)
-                // while (!visited.Contains(next))
                 {
                     visited.Add(next);
                     next = GeoNum.Instance.CountLong(next, separatorCount);
-                    // Console.WriteLine($"\t{next}: {geo} ({next = GeoNum.Instance.CountLong(next, separatorCount);})");
                 }
                 if (visited.Count + 1 > sequence.Count)
                 {
@@ -203,7 +203,6 @@ namespace _4Has4Letters // Even in Georgian!
                     // Assuming all sequences end with 4
                     sequence.Add(4);
                 }
-                // Console.WriteLine($"{i}: {sequence.Count}");
             }
             return sequence;
         }

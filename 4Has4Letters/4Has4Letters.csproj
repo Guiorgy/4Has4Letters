@@ -9,6 +9,7 @@
     <Copyright>Guiorgy</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Guiorgy/4Has4Letters</PackageProjectUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

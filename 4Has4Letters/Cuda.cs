@@ -1,10 +1,14 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace _4Has4Letters
 {
-    public class Cuda
+    [SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Don't wanna")]
+    [SuppressMessage("Major Code Smell", "S4214:\"P/Invoke\" methods should not be visible")]
+    public static class Cuda
     {
-        public struct sec
+        [SuppressMessage("Minor Code Smell", "S1104:Fields should not have public accessibility", Justification = "Unnecesary")]
+        public struct Section
         {
             public ulong start;
             public int steps;
@@ -16,7 +20,7 @@ namespace _4Has4Letters
         public static extern void prepare(int[] under, int[] thousandCount, uint blocks);
 
         [DllImport(CudaDll, CallingConvention = CallingConvention.Cdecl)]
-        public static extern sec findBetween(ulong start, ulong end);
+        public static extern Section findBetween(ulong start, ulong end);
 
         [DllImport(CudaDll, CallingConvention = CallingConvention.Cdecl)]
         public static extern void reset();

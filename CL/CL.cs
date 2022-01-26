@@ -1,5 +1,4 @@
 ﻿using Cloo;
-using Cloo.Extensions;
 using GeorgianNumbers;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CL
 {
-    public class CL
+    public static class CL
     {
 #if DEBUG
         private static bool debugInfoPrinted = false;
@@ -24,7 +23,6 @@ namespace CL
                 Console.WriteLine("No Platforms found!");
                 return max;
             }
-            var deviceNames = ClooExtensions.GetDeviceNames();
             var platform = ComputePlatform.Platforms[0];
 #if DEBUG
             if (!debugInfoPrinted)
@@ -92,7 +90,7 @@ namespace CL
                     long s = start;
                     tasks[taskId] = Task.Run(() =>
                     {
-                        var m = Tuple.Create<int, long>(0, 0); ;
+                        var m = Tuple.Create<int, long>(0, 0);
                         for (int i = 0; i < steps.Length; ++i)
                             if (steps[i] > m.Item1)
                                 m = Tuple.Create(steps[i], s + i);
@@ -115,7 +113,7 @@ namespace CL
                     size = (int)Math.Min(end - start, maxSize);
                 }
                 commands.Finish();
-                eventList.Dispose();
+                eventList.DisposeAll();
             } catch (Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -125,7 +123,7 @@ namespace CL
             return max;
         }
 
-        private static readonly string Kernel =
+        private const string Kernel =
 @"
 kernel void findKernel(global read_only int* under,
                 global read_only int* thousands,
