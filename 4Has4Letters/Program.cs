@@ -135,7 +135,7 @@ namespace _4Has4Letters // Even in Georgian!
             if (sequence == null) return;
             if (!string.IsNullOrWhiteSpace(options.output))
             {
-                await using StreamWriter writer = new StreamWriter(options.output, false, Encoding.Unicode);
+                await using StreamWriter writer = new(options.output, false, Encoding.Unicode);
                 await writer.WriteLineAsync($"First longest ({sequence.Count}) sequence over {string.Format("{0:n0}", options.start)} and under {string.Format("{0:n0}", options.end)}:");
                 foreach (long n in sequence)
                 {
@@ -161,10 +161,10 @@ namespace _4Has4Letters // Even in Georgian!
         [Obsolete("NaiveCheck is Deprecated. Use FastCheck instead.")]
         private static List<long> NaiveCheck(Options options, int thread)
         {
-            List<long> sequence = new List<long>();
+            List<long> sequence = new();
             for (long i = options.start + thread; i <= options.end; i += options.threads)
             {
-                List<long> visited = new List<long>();
+                List<long> visited = new();
                 long next = i;
                 while (!visited.Contains(next))
                 {
@@ -185,10 +185,10 @@ namespace _4Has4Letters // Even in Georgian!
         private static List<long> FastCheck(Options options, int thread)
         {
             int separatorCount = options.separator.Length;
-            List<long> sequence = new List<long>();
+            List<long> sequence = new();
             for (long i = options.start + thread; i <= options.end; i += options.threads)
             {
-                List<long> visited = new List<long>();
+                List<long> visited = new();
                 long next = i;
                 // Assuming all sequences end with 4
                 while (next != 4)

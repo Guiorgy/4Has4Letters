@@ -5,6 +5,7 @@ namespace _4Has4Letters
 {
     [SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Don't wanna")]
     [SuppressMessage("Major Code Smell", "S4214:\"P/Invoke\" methods should not be visible")]
+    [SuppressMessage("Interoperability", "CA1401:P/Invokes should not be visible")]
     public static class Cuda
     {
         [SuppressMessage("Minor Code Smell", "S1104:Fields should not have public accessibility", Justification = "Unnecesary")]
