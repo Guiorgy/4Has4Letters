@@ -22,15 +22,15 @@
 
 The code can be run on the **CPU**, or **GPU** with either **CUDA** or **OpenCL**.
 
-If my testing, running using **OpenCL** was the fastest,
+In my testing, running using **OpenCL** was the fastest,
 though it's probably because the **CUDA** code is not well written.
 This was the first time I tried writing **GPU** accelerated code.
 
 Beware, that if you do use **OpenCL**, the code will preallocate
 System Memory blocks of around your GPU memory size *for every thread*,
-so I reccomend you also set the `-m, --memory` argument to -6 GB orso of
-your total System Memory, otherwise, it will start to use your Virtual Memory,
-or ever fail the execution if the memory argument is set too high!
+so I reccomend you also set the `-m, --memory` argument to a little less than your
+total System Memory, otherwise, it will start to use your Virtual Memory,
+or even fail the execution if the memory argument is set too high!
 
 ## License
 
