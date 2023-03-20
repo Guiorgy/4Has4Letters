@@ -42,10 +42,10 @@ namespace CL
                 long maxSize = (long)((double)ComputePlatform.Platforms[0].Devices[0].GlobalMemorySize / 4);
                 maxSize -= maxSize % (GeoNum.Instance.underCount.Length * 4 + GeoNum.Instance.thousandsCount.Length * 4 + 256 * 1_048_576);
                 maxSize = Math.Min(_maxSize, maxSize);
-                int size = (int)Math.Min(end - start, maxSize);
+                long size = Math.Min(end - start, maxSize);
                 int batchCount = (int)Math.Ceiling((double)(end - start - 1) / size);
                 threads = Math.Min(threads, batchCount);
-                threads = Math.Min(threads, (int)(Math.Min((ulong)size * 4 * (ulong)threads, (ulong)memory * 1_073_741_824) / (ulong)size / 4));
+                threads = Math.Max(1, Math.Min(threads, (int)(memory * 1_073_741_824 / size / 4)));
 #if DEBUG
                 Console.WriteLine("Allocating {0} Bytes for every batch of data!", size * 4);
                 Console.WriteLine("Total batches: {0}", batchCount);
